@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -44,23 +44,26 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link
+          href="/"
+          className="flex items-center gap-3 group rounded-2xl border border-border/80 bg-surface/70 backdrop-blur-sm px-3 py-2 shadow-sm transition-all duration-300 hover:border-primary/35 hover:shadow-md"
+        >
           <div
-            className="relative w-11 h-11 rounded-full overflow-hidden shadow-lg transition-transform duration-300 group-hover:scale-105"
+            className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden transition-transform duration-300 group-hover:scale-105"
             style={{ position: "relative" }}
           >
             <Image
               src="/modernlogo.png"
               alt="Modern Simulator"
               fill
-              className="object-cover"
+              className="object-contain"
             />
           </div>
           <div className="hidden sm:flex flex-col">
-            <span className="font-space font-bold text-lg leading-tight tracking-wider text-foreground group-hover:text-primary transition-colors">
+            <span className="font-space font-bold text-lg md:text-xl leading-tight tracking-wide text-foreground group-hover:text-primary transition-colors">
               MODERN
             </span>
-            <span className="text-xs tracking-widest text-muted">
+            <span className="text-sm tracking-[0.2em] text-muted">
               SİMÜLATÖR
             </span>
           </div>
@@ -177,3 +180,4 @@ export default function Navbar() {
     </motion.nav>
   );
 }
+

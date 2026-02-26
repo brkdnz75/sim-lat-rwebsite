@@ -1,4 +1,4 @@
-const tr = {
+﻿const tr = {
   nav: {
     home: "Ana Sayfa",
     about: "Hakkımızda",
@@ -124,3 +124,4 @@ const tr = {
 } as const;
 
 export default tr;
+

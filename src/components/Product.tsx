@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { CheckCircle2, MessageSquare, ArrowRight } from "lucide-react";
@@ -135,3 +135,4 @@ export default function Product() {
     </section>
   );
 }
+

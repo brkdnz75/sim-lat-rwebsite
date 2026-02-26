@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -23,16 +23,16 @@ export default function Footer() {
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="space-y-5">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div
-                className="relative w-10 h-10 rounded-full overflow-hidden shadow-md"
+                className="relative w-12 h-12 rounded-xl overflow-hidden"
                 style={{ position: "relative" }}
               >
                 <Image
                   src="/modernlogo.png"
                   alt="Modern Simulator"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
               <span className="font-space font-bold text-xl text-foreground">
@@ -140,3 +140,4 @@ export default function Footer() {
     </footer>
   );
 }
+

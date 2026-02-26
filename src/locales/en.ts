@@ -1,4 +1,4 @@
-const en = {
+﻿const en = {
   nav: {
     home: "Home",
     about: "About",
@@ -124,3 +124,4 @@ const en = {
 } as const;
 
 export default en;
+
