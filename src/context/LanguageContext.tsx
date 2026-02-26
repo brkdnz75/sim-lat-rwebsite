@@ -5,7 +5,12 @@ import tr from "@/locales/tr";
 import en from "@/locales/en";
 
 type Lang = "tr" | "en";
-type Translations = typeof tr;
+type DeepTranslationShape<T> =
+  T extends string ? string :
+  T extends readonly (infer U)[] ? readonly DeepTranslationShape<U>[] :
+  T extends object ? { readonly [K in keyof T]: DeepTranslationShape<T[K]> } :
+  T;
+type Translations = DeepTranslationShape<typeof tr>;
 
 interface LanguageContextType {
   lang: Lang;
