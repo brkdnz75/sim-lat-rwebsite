@@ -49,7 +49,7 @@ export default function Navbar() {
           className="flex items-center gap-3 group rounded-2xl border border-border/80 bg-surface/70 backdrop-blur-sm px-3 py-2 shadow-sm transition-all duration-300 hover:border-primary/35 hover:shadow-md"
         >
           <div
-            className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden transition-transform duration-300 group-hover:scale-105"
+            className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-[72px] lg:h-[72px] rounded-xl overflow-hidden transition-transform duration-300 group-hover:scale-105"
             style={{ position: "relative" }}
           >
             <Image
@@ -59,11 +59,11 @@ export default function Navbar() {
               className="object-contain"
             />
           </div>
-          <div className="hidden sm:flex flex-col">
-            <span className="font-space font-bold text-lg md:text-xl leading-tight tracking-wide text-foreground group-hover:text-primary transition-colors">
+          <div className="flex flex-col min-w-0">
+            <span className="font-space font-bold text-base sm:text-lg md:text-xl leading-tight tracking-wide text-foreground group-hover:text-primary transition-colors truncate">
               MODERN
             </span>
-            <span className="text-sm tracking-[0.2em] text-muted">
+            <span className="text-[11px] sm:text-sm tracking-[0.16em] text-muted truncate">
               SİMÜLATÖR
             </span>
           </div>
