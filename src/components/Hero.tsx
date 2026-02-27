@@ -6,8 +6,10 @@ import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
-const HERO_VIDEO_SRC =
-  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
+const HERO_VIDEO_SOURCES = [
+  "/hero-demo.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+];
 const HERO_VIDEO_POSTER =
   "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=2000&auto=format&fit=crop";
 
@@ -15,46 +17,59 @@ export default function Hero() {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
   const [videoError, setVideoError] = useState(false);
+  const [videoSourceIndex, setVideoSourceIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { t } = useLanguage();
 
   const phases = t.hero.phases;
   const phaseCount = phases.length;
+  const activeVideoSrc = HERO_VIDEO_SOURCES[videoSourceIndex];
   const progress = useMemo(
     () => ((currentPhase + 1) / phaseCount) * 100,
     [currentPhase, phaseCount]
   );
 
-  useEffect(() => {
+  const tryPlay = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoadedMetadata = () => {
-      if (Number.isFinite(video.duration) && video.duration > 0) {
-        setVideoDuration(video.duration);
-      }
-    };
+    const playPromise = video.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        // Autoplay can be blocked on some devices/browsers.
+      });
+    }
+  };
 
-    const handleTimeUpdate = () => {
-      if (!video.duration || !Number.isFinite(video.duration)) return;
-      const segment = video.duration / phaseCount;
-      const next = Math.min(phaseCount - 1, Math.floor(video.currentTime / segment));
-      setCurrentPhase((prev) => (prev === next ? prev : next));
-    };
+  const handleVideoLoadedMetadata = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (Number.isFinite(video.duration) && video.duration > 0) {
+      setVideoDuration(video.duration);
+    }
+  };
 
-    const handleError = () => setVideoError(true);
+  const handleVideoTimeUpdate = () => {
+    const video = videoRef.current;
+    if (!video || !video.duration || !Number.isFinite(video.duration)) return;
+    const segment = video.duration / phaseCount;
+    const next = Math.min(phaseCount - 1, Math.floor(video.currentTime / segment));
+    setCurrentPhase((prev) => (prev === next ? prev : next));
+  };
 
-    handleLoadedMetadata();
-    video.addEventListener("loadedmetadata", handleLoadedMetadata);
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("error", handleError);
+  const handleVideoCanPlay = () => {
+    setVideoError(false);
+    tryPlay();
+  };
 
-    return () => {
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("error", handleError);
-    };
-  }, [phaseCount]);
+  const handleVideoError = () => {
+    setVideoDuration(0);
+    if (videoSourceIndex < HERO_VIDEO_SOURCES.length - 1) {
+      setVideoSourceIndex((prev) => prev + 1);
+      return;
+    }
+    setVideoError(true);
+  };
 
   useEffect(() => {
     if (videoDuration > 0) return;
@@ -66,19 +81,24 @@ export default function Hero() {
   }, [videoDuration, phaseCount]);
 
   return (
-    <section id="hero" className="relative min-h-screen w-full overflow-hidden bg-background pt-24 md:pt-28">
+    <section
+      id="hero"
+      className="relative min-h-screen lg:h-screen w-full overflow-hidden bg-background pt-24 md:pt-28"
+    >
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(8,145,178,0.16),transparent_45%),radial-gradient(circle_at_85%_35%,rgba(14,116,144,0.14),transparent_40%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(15,23,42,0.05)_0%,rgba(15,23,42,0.15)_100%)] dark:bg-[linear-gradient(130deg,rgba(6,10,25,0.8)_0%,rgba(6,10,25,0.95)_100%)]" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 pb-8 md:pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-h-[calc(100vh-8.5rem)]">
+      <div className="relative z-10 h-full">
+        <div className="relative h-full grid grid-cols-1 lg:grid-cols-2 lg:gap-0">
+          <div className="hidden lg:block absolute inset-y-0 left-1/2 z-30 w-px bg-gradient-to-b from-transparent via-primary/35 to-transparent pointer-events-none" />
+
           <motion.div
-            initial={{ opacity: 0, x: -24 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="relative rounded-3xl border border-border/70 bg-surface/80 p-7 md:p-10 lg:p-12 backdrop-blur-xl flex flex-col justify-between overflow-hidden"
+            className="relative z-20 h-auto lg:h-full border-y border-border/70 lg:border-l lg:border-r-0 bg-surface/80 p-6 md:p-8 lg:p-10 xl:p-12 backdrop-blur-xl flex flex-col justify-between overflow-hidden"
           >
             <div className="absolute -top-28 -right-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
             <div className="relative space-y-8">
@@ -89,8 +109,8 @@ export default function Hero() {
                 </span>
               </div>
 
-              <div className="relative min-h-[220px] md:min-h-[260px]">
-                <AnimatePresence mode="wait">
+              <div className="relative min-h-[190px] md:min-h-[230px]">
+                <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={currentPhase}
                     initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
@@ -161,29 +181,37 @@ export default function Hero() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 24 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-            className="relative rounded-3xl overflow-hidden border border-border/70 shadow-2xl shadow-black/20 min-h-[380px] lg:min-h-full"
+            className="relative z-10 h-[45vh] min-h-[320px] sm:h-[52vh] lg:h-full lg:min-h-0 overflow-hidden border-b border-border/70 lg:border-r lg:border-y bg-slate-950"
           >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(34,211,238,0.28),transparent_45%),linear-gradient(135deg,#0f172a_0%,#111f34_42%,#0d3a4b_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(56,189,248,0.13)_0%,rgba(15,23,42,0)_35%,rgba(34,197,94,0.08)_100%)] animate-pulse" />
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/15 via-slate-900/15 to-cyan-600/20 pointer-events-none z-10" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.1)_0%,rgba(2,6,23,0.78)_100%)] z-10 pointer-events-none" />
 
             {!videoError ? (
               <video
+                key={activeVideoSrc}
                 ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 z-[5] w-full h-full object-contain bg-black"
                 autoPlay
                 muted
                 loop
                 playsInline
-                preload="metadata"
+                preload="auto"
                 poster={HERO_VIDEO_POSTER}
+                onLoadedMetadata={handleVideoLoadedMetadata}
+                onCanPlay={handleVideoCanPlay}
+                onLoadedData={tryPlay}
+                onTimeUpdate={handleVideoTimeUpdate}
+                onError={handleVideoError}
               >
-                <source src={HERO_VIDEO_SRC} type="video/mp4" />
+                <source src={activeVideoSrc} type="video/mp4" />
               </video>
             ) : (
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,#0f172a_0%,#164e63_55%,#0f172a_100%)]" />
+              <div className="absolute inset-0 z-[5] bg-[linear-gradient(135deg,#0f172a_0%,#164e63_55%,#0f172a_100%)]" />
             )}
 
             <div className="absolute top-5 left-5 z-20 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-3 py-2 backdrop-blur-md">
@@ -194,7 +222,7 @@ export default function Hero() {
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-8">
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={`video-caption-${currentPhase}`}
                   initial={{ opacity: 0, y: 16 }}
@@ -215,7 +243,7 @@ export default function Hero() {
             {videoError && (
               <div className="absolute inset-0 z-30 grid place-items-center p-6 text-center bg-black/30">
                 <p className="text-white/90 text-sm md:text-base">
-                  Video kaynağı açılamadı. `HERO_VIDEO_SRC` adresini kendi demo videonla değiştir.
+                  Video kaynağı açılamadı. `/public/hero-demo.mp4` dosyasını ekleyin.
                 </p>
               </div>
             )}
@@ -223,16 +251,6 @@ export default function Hero() {
         </div>
       </div>
 
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 hidden md:flex flex-col items-center gap-2"
-      >
-        <span className="text-[10px] text-muted tracking-[0.2em] font-space uppercase">
-          {t.hero.scroll}
-        </span>
-        <div className="w-[1px] h-10 bg-gradient-to-b from-primary to-transparent" />
-      </motion.div>
     </section>
   );
 }

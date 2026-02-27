@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr" className="scroll-smooth dark" suppressHydrationWarning>
+    <html lang="tr" className="scroll-smooth light" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans min-h-screen relative`}
